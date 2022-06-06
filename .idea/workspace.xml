@@ -2,10 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b5fa3d12-e2ef-4280-98ab-bf538e35956f" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Test/Test/BaseClass.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Test/Test/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Test/Test/test_stress.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Test/Test/test_stress.py" beforeDir="false" afterPath="$PROJECT_DIR$/Test/Test/test_stress.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,7 +32,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
   </component>
-  <component name="RunManager" selected="Python tests.Python tests for test_stress.TestStress.test_stress_app">
+  <component name="RunManager" selected="Python tests.Python tests for test_stress.TestStress">
     <configuration name="Python tests for test_stress.TestStress" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
       <module name="Embedded_Testing" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -49,20 +47,6 @@
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="Python tests for test_stress.TestStress.test_boot_status" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
-      <module name="Embedded_Testing" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Test/Test" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test_stress.TestStress.test_boot_status&quot;" />
-      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
-      <method v="2" />
-    </configuration>
     <configuration name="Python tests for test_stress.TestStress.test_read_imx_value" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
       <module name="Embedded_Testing" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -74,6 +58,20 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
       <option name="_new_target" value="&quot;test_stress.TestStress.test_read_imx_value&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Python tests for test_stress.TestStress.test_set_imx_register" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+      <module name="Embedded_Testing" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Test/Test" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;test_stress.TestStress.test_set_imx_register&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
@@ -107,11 +105,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python tests.Python tests for test_stress.TestStress" />
+        <item itemvalue="Python tests.Python tests for test_stress.TestStress.test_set_imx_register" />
         <item itemvalue="Python tests.Python tests for test_stress.TestStress.test_stress_app" />
         <item itemvalue="Python tests.Python tests for test_stress.TestStress.test_read_imx_value" />
-        <item itemvalue="Python tests.Python tests for test_stress.TestStress" />
         <item itemvalue="Python tests.Python tests for test_stress.TestStress.test_software_version" />
-        <item itemvalue="Python tests.Python tests for test_stress.TestStress.test_boot_status" />
       </list>
     </recent_temporary>
   </component>

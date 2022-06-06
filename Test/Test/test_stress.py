@@ -2,30 +2,30 @@ import json
 import time
 import requests
 import responses
-import pytest
 from datetime import datetime
 from responses import matchers
-
 
 base_url = "https://7facbdb5-b28c-46e1-a70f-a00b44f62626.mock.io/api/v1.0/"
 
 
 class TestStress:
+
+    # Testing API to get software version
     @responses.activate
     def test_software_version(self):
         responses.add(responses.Response(method="GET",
-                      url=f"{base_url}swupdate/sw-versions",
-                      json={
-                          "api": "/api/v1.0/swupdate/sw-versions",
-                          "status": "success",
-                          "versions":
-                              {
-                                  "name": "Cruise 1.0",
-                                  "version": "1.0"
-                              }
-                      },
-                      status=200
-                      ))
+                                         url=f"{base_url}swupdate/sw-versions",
+                                         json={
+                                             "api": "/api/v1.0/swupdate/sw-versions",
+                                             "status": "success",
+                                             "versions":
+                                                 {
+                                                     "name": "Cruise 1.0",
+                                                     "version": "1.0"
+                                                 }
+                                         },
+                                         status=200
+                                         ))
 
         responses.add(responses.Response(
             method="POST",
@@ -54,19 +54,19 @@ class TestStress:
         if float(req.json()["versions"]['version']) < 1.0:
             print("Update required")
 
-    # hardware version mock
+    # Testing API to get hardware version
     @responses.activate
     def test_hardware_version(self):
         responses.add(responses.Response(method="GET",
-                                  url=f"{base_url}swupdate/hw-revision",
-                                  json={
-                                      "api": "/api/v1.0/swupdate/hw-revision",
-                                      "status": "success",
-                                      "board": "Cruiseboardname",
-                                      "revision": "1.1"
-                                  },
-                                  status=200
-                                ))
+                                         url=f"{base_url}swupdate/hw-revision",
+                                         json={
+                                             "api": "/api/v1.0/swupdate/hw-revision",
+                                             "status": "success",
+                                             "board": "Cruiseboardname",
+                                             "revision": "1.1"
+                                         },
+                                         status=200
+                                         ))
         responses.add(responses.patch(
             f"{base_url}swupdate/hw-revision",
             body="Method not allowed",
@@ -87,6 +87,7 @@ class TestStress:
         assert req1.status_code == 405
         assert req1.text == "Method not allowed"
 
+    # Testing API to get current system time
     @responses.activate
     def test_current_system_time(self):
         current_time = datetime.now().strftime("%H:%M")
@@ -109,6 +110,7 @@ class TestStress:
         assert req1.status_code == 400
         assert req1.text == "Bad request"
 
+    # Testing API to get boot status
     @responses.activate
     def test_boot_status(self):
         responses.add(responses.Response(
@@ -138,7 +140,7 @@ class TestStress:
         assert req1.text == "Method Not Allowed"
         assert req1.status_code == 405
 
-
+    # Testing API to get humidity and temperature
     @responses.activate
     def test_humidity_and_temperature(self):
         intial_time = time.time()
@@ -175,20 +177,28 @@ class TestStress:
         assert total_time < 100
         assert 20 < req.json()[1]['Readings'] < 100
 
+    # Testing API to set imx register
     @responses.activate
     def test_set_imx_register(self):
         register, register_value = "0x01", "100"
-        responses.post(
-            f"{base_url}g2_5mp_camera/set_imx490_register",
-            match=[matchers.urlencoded_params_matcher({"register": register, "register_value": register_value})],
-            json=[{
+
+        def request_callback(request):
+            payload = json.loads(request.body)
+            resp_body = [{
                 "Status": "Success",
                 "register_details": {
-                    "register": [register],
-                    "register_value": [register_value]
+                    "register": payload["register"],
+                    "register_value": payload["register_value"]
                 }
-            }],
-            status=201
+            }]
+            headers = {"request-id": "728d329e-0e86-11e4-a748-0c84dc037c13"}
+            return 201, headers, json.dumps(resp_body)
+
+        responses.add_callback(
+            responses.POST,
+            url=f"{base_url}g2_5mp_camera/set_imx490_register",
+            callback=request_callback,
+            content_type="application/json",
         )
         responses.get(
             f"{base_url}g2_5mp_camera/set_imx490_register",
@@ -196,14 +206,20 @@ class TestStress:
             status=400
         )
 
-        req = requests.post(f"{base_url}g2_5mp_camera/set_imx490_register",
-                            data={"register": register, "register_value": register_value})
+        req = requests.post(
+            f"{base_url}g2_5mp_camera/set_imx490_register",
+            json.dumps(
+                {"register": [register],
+                 "register_value": [register_value]}
+            ),
+            headers={"content-type": "application/json"}
+        )
+        resp = req.json()
 
-        req2 = requests.get(f"{base_url}g2_5mp_camera/set_imx490_register",
-                            data={"register": register, "register_value": register_value})
+        req2 = requests.get(f"{base_url}g2_5mp_camera/set_imx490_register")
 
-        assert req.json()[0]['Status'] == "Success"
-        assert req.json()[0]['register_details'] == {
+        assert resp[0]['Status'] == "Success"
+        assert resp[0]['register_details'] == {
             "register": [register],
             "register_value": [register_value]
         }
@@ -212,6 +228,7 @@ class TestStress:
         assert req2.text == "Bad request"
         assert req2.status_code == 400
 
+    # Testing API to get imx register
     @responses.activate
     def test_read_imx_value(self):
         param = "0x76"
@@ -235,16 +252,17 @@ class TestStress:
 
         print(int(param, 16))
 
+    # Testing API that manage stressapptest
     @responses.activate
     def test_stress_app(self):
         def request_callback(request):
             payload = json.loads(request.body)
             resp_body = {"memory": payload['memory'], "copy_threads": payload['copy_threads'],
                          "cpu_threads": payload['cpu_threads'], "time": payload['time'],
-                         "stressful-memory": payload['stressful-memory'], "tempfile": payload['tempfile'],
+                         "stressful_memory": payload['stressful_memory'], "tempfile": payload['tempfile'],
                          "persist": payload['persist'], "enable": payload['enable']}
             headers = {"request-id": "728d329e-0e86-11e4-a748-0c84dc037c13"}
-            return 200, headers, json.dumps(resp_body)
+            return 201, headers, json.dumps(resp_body)
 
         responses.add_callback(
             responses.POST,
@@ -255,13 +273,16 @@ class TestStress:
         req = requests.post(
             f"{base_url}hardware_test/stressapptest",
             json.dumps(
-                {"memory": "512", "copy_threads": "8",
-                 "cpu_threads": "8", "time": "10",
-                 "stressful-memory": False, "tempfile": ["/temp/file1", "/temp/file2"],
+                {"memory": 512, "copy_threads": 8,
+                 "cpu_threads": 8, "time": 10,
+                 "stressful_memory": False, "tempfile": ["/temp/file1", "/temp/file2"],
                  "persist": False, "enable": True}
             ),
             headers={"content-type": "application/json"}
         )
-        print()
-        print(req.json())
-
+        resp = req.json()
+        assert resp["memory"] == 512
+        assert resp["cpu_threads"] == 8
+        assert resp["copy_threads"] == 8
+        assert resp["stressful_memory"] == False
+        assert "/temp/file1" in resp["tempfile"] and "/temp/file2" in resp["tempfile"]
