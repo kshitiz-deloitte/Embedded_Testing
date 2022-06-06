@@ -5,7 +5,9 @@ import responses
 from datetime import datetime
 from responses import matchers
 
-base_url = "https://7facbdb5-b28c-46e1-a70f-a00b44f62626.mock.io/api/v1.0/"
+from Test.Utils.readCfg import get_from_config
+
+base_url = get_from_config("base_url")
 
 
 class TestStress:
@@ -13,8 +15,9 @@ class TestStress:
     # Testing API to get software version
     @responses.activate
     def test_software_version(self):
+        path = get_from_config("path_software_version")
         responses.add(responses.Response(method="GET",
-                                         url=f"{base_url}swupdate/sw-versions",
+                                         url=f"{base_url}{path}",
                                          json={
                                              "api": "/api/v1.0/swupdate/sw-versions",
                                              "status": "success",
@@ -29,17 +32,17 @@ class TestStress:
 
         responses.add(responses.Response(
             method="POST",
-            url=f"{base_url}swupdate/sw-versions",
+            url=f"{base_url}{path}",
             status=400
         ))
         responses.put(
-            url=f"{base_url}swupdate/sw-versions",
+            url=f"{base_url}{path}",
             status=400
         )
 
-        req = requests.get(f"{base_url}swupdate/sw-versions")
-        req1 = requests.post(f"{base_url}swupdate/sw-versions")
-        req2 = requests.put(f"{base_url}swupdate/sw-versions")
+        req = requests.get(f"{base_url}{path}")
+        req1 = requests.post(f"{base_url}{path}")
+        req2 = requests.put(f"{base_url}{path}")
 
         dictionary = req.json()
         assert dictionary["api"] == "/api/v1.0/swupdate/sw-versions"
@@ -57,8 +60,9 @@ class TestStress:
     # Testing API to get hardware version
     @responses.activate
     def test_hardware_version(self):
+        path = get_from_config("path_hardware_version")
         responses.add(responses.Response(method="GET",
-                                         url=f"{base_url}swupdate/hw-revision",
+                                         url=f"{base_url}{path}",
                                          json={
                                              "api": "/api/v1.0/swupdate/hw-revision",
                                              "status": "success",
@@ -68,14 +72,14 @@ class TestStress:
                                          status=200
                                          ))
         responses.add(responses.patch(
-            f"{base_url}swupdate/hw-revision",
+            f"{base_url}{path}",
             body="Method not allowed",
             status=405
         ))
 
         # requests
-        req = requests.get(f"{base_url}swupdate/hw-revision")
-        req1 = requests.patch(f"{base_url}swupdate/hw-revision")
+        req = requests.get(f"{base_url}{path}")
+        req1 = requests.patch(f"{base_url}{path}")
 
         # assertions
         assert req.json()['api'] == "/api/v1.0/swupdate/hw-revision"
@@ -91,20 +95,21 @@ class TestStress:
     @responses.activate
     def test_current_system_time(self):
         current_time = datetime.now().strftime("%H:%M")
+        path = get_from_config("path_current_time")
         resp = responses.Response(
             method="GET",
-            url=f"{base_url}system/clock/value",
+            url=f"{base_url}{path}",
             json={"System time": current_time},
             status=200
         )
         responses.add(resp)
         responses.put(
-            f"{base_url}system/clock/value",
+            f"{base_url}{path}",
             body="Bad request",
             status=400
         )
-        req = requests.get(f"{base_url}system/clock/value")
-        req1 = requests.put(f"{base_url}system/clock/value")
+        req = requests.get(f"{base_url}{path}")
+        req1 = requests.put(f"{base_url}{path}")
         assert req.json()['System time'] == datetime.now().strftime("%H:%M")
         assert req.status_code == 200
         assert req1.status_code == 400
@@ -113,9 +118,10 @@ class TestStress:
     # Testing API to get boot status
     @responses.activate
     def test_boot_status(self):
+        path = get_from_config("path_boot_status")
         responses.add(responses.Response(
             method="GET",
-            url=f"{base_url}swupdate/boot-status",
+            url=f"{base_url}{path}",
             json={
                 "api": "/api/v1.0/swupdate/boot-status",
                 "boot-status": "success",
@@ -124,12 +130,12 @@ class TestStress:
             status=200
         ))
         responses.post(
-            f"{base_url}swupdate/boot-status",
+            f"{base_url}{path}",
             body="Method Not Allowed",
             status=405
         )
-        req = requests.get(f"{base_url}swupdate/boot-status")
-        req1 = requests.post(f"{base_url}swupdate/boot-status")
+        req = requests.get(f"{base_url}{path}")
+        req1 = requests.post(f"{base_url}{path}")
         if req.json()['status'] == "Fail":
             print("Reset Device")
 
@@ -144,9 +150,10 @@ class TestStress:
     @responses.activate
     def test_humidity_and_temperature(self):
         intial_time = time.time()
+        path = get_from_config("path_humid_temp")
         responses.add(responses.Response(
             method="GET",
-            url=f"{base_url}device/relative_humidity_temperature",
+            url=f"{base_url}{path}",
             json=[{
                 "device_name": "device_relative_humidity",
                 "readings": [7.7],
@@ -160,12 +167,12 @@ class TestStress:
             status=200
         ))
         responses.post(
-            f"{base_url}device/relative_humidity_temperature",
+            f"{base_url}{path}",
             body="Method Not Allowed",
             status=405
         )
-        req = requests.get(f"{base_url}device/relative_humidity_temperature")
-        req1 = requests.post(f"{base_url}device/relative_humidity_temperature")
+        req = requests.get(f"{base_url}{path}")
+        req1 = requests.post(f"{base_url}{path}")
         total_time = time.time() - intial_time
         assert req.status_code == 200
         assert req.json()[0]['device_name'] == "device_relative_humidity"
@@ -181,6 +188,7 @@ class TestStress:
     @responses.activate
     def test_set_imx_register(self):
         register, register_value = "0x01", "100"
+        path = get_from_config("path_set_imx_register")
 
         def request_callback(request):
             payload = json.loads(request.body)
@@ -196,18 +204,18 @@ class TestStress:
 
         responses.add_callback(
             responses.POST,
-            url=f"{base_url}g2_5mp_camera/set_imx490_register",
+            url=f"{base_url}{path}",
             callback=request_callback,
             content_type="application/json",
         )
         responses.get(
-            f"{base_url}g2_5mp_camera/set_imx490_register",
+            f"{base_url}{path}",
             body="Bad request",
             status=400
         )
 
         req = requests.post(
-            f"{base_url}g2_5mp_camera/set_imx490_register",
+            f"{base_url}{path}",
             json.dumps(
                 {"register": [register],
                  "register_value": [register_value]}
@@ -216,7 +224,7 @@ class TestStress:
         )
         resp = req.json()
 
-        req2 = requests.get(f"{base_url}g2_5mp_camera/set_imx490_register")
+        req2 = requests.get(f"{base_url}{path}")
 
         assert resp[0]['Status'] == "Success"
         assert resp[0]['register_details'] == {
@@ -232,7 +240,7 @@ class TestStress:
     @responses.activate
     def test_read_imx_value(self):
         param = "0x76"
-        path = "g2_5mp_camera/read_imx490_register/"
+        path = get_from_config("path_get_imx_register")
         responses.get(
             f"{base_url}{path}{param}",
             json={"Register": f"{param}", "Status": "Success"},
@@ -255,6 +263,8 @@ class TestStress:
     # Testing API that manage stressapptest
     @responses.activate
     def test_stress_app(self):
+        path = get_from_config("path_stress_app")
+
         def request_callback(request):
             payload = json.loads(request.body)
             resp_body = {"memory": payload['memory'], "copy_threads": payload['copy_threads'],
@@ -266,12 +276,12 @@ class TestStress:
 
         responses.add_callback(
             responses.POST,
-            url=f"{base_url}hardware_test/stressapptest",
+            url=f"{base_url}{path}",
             callback=request_callback,
             content_type="application/json",
         )
         req = requests.post(
-            f"{base_url}hardware_test/stressapptest",
+            f"{base_url}{path}",
             json.dumps(
                 {"memory": 512, "copy_threads": 8,
                  "cpu_threads": 8, "time": 10,
@@ -284,5 +294,5 @@ class TestStress:
         assert resp["memory"] == 512
         assert resp["cpu_threads"] == 8
         assert resp["copy_threads"] == 8
-        assert resp["stressful_memory"] == False
+        assert resp["stressful_memory"] is False
         assert "/temp/file1" in resp["tempfile"] and "/temp/file2" in resp["tempfile"]
